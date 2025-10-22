@@ -29,12 +29,18 @@ const router = createBrowserRouter([
             { index: true, element: <Home /> },           // HOME
             { path: "about", element: <About /> },         // ABOUT
             
-            // Nested and Dynamic Routes for Menu (Objective 3)
+            // Nested and Dynamic Routes for Menu
             { 
                 path: "menu",
                 element: <Menu />, 
                 children: [
-                    // Dynamic segment for category selection: /menu/coffee
+                    // --- CRITICAL FIX ---
+                    // 1. Redirect base path /menu to the default category /menu/coffee
+                    { 
+                        index: true, 
+                        element: <ItemDetails />
+                    },
+                    // 2. Dynamic segment for category selection: /menu/:categoryPath
                     { path: ":categoryPath", element: <ItemDetails /> }, 
                 ]
             },

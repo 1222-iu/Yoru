@@ -9,30 +9,30 @@ import Notification from './components/Notification';
 import { useCart } from './context/CartContext'; 
 
 const App = () => {
-    // Get cart state and functions from CartContext
+    // Get cart state and functions
     const { cart, setCart, isCartOpen, closeCart, notification, hideNotification } = useCart(); 
 
-    // --- AUTH MODAL STATE (CRITICAL) ---
+    // --- MODAL STATE MANAGEMENT ---
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-    
-    // --- GENERIC FORM MODAL STATE (Newsletter, Reservation) ---
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formKind, setFormKind] = useState(null); 
 
     const openForm = (kind) => { setFormKind(kind); setIsFormOpen(true); };
     const closeForm = () => { setIsFormOpen(false); setFormKind(null); };
 
-    // Functions to control the AuthModal
     const openAuthModal = () => setIsAuthModalOpen(true); 
     const closeAuthModal = () => setIsAuthModalOpen(false); 
 
+    // Define context data to pass to children (Menu/ItemDetails)
+    const contextValue = { openAuthModal }; 
+
     return (
         <>
-            {/* Pass the function to the Header */}
             <Header onOpenForm={openForm} openAuthModal={openAuthModal} /> 
             
             <main className="container">
-                <Outlet />
+                {/* CRITICAL: Pass the context to all child routes */}
+                <Outlet context={contextValue} /> 
             </main>
             
             <Footer />
@@ -44,17 +44,17 @@ const App = () => {
                 setCart={setCart} 
             />
             
-            {/* RENDER THE GENERIC FORM MODAL */}
             <FormModal 
                 kind={formKind} 
                 isOpen={isFormOpen} 
                 onClose={closeForm} 
             />
 
-            {/* --- RENDER AUTH MODAL HERE --- */}
-            <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} /> 
+            <AuthModal 
+                isOpen={isAuthModalOpen} 
+                onClose={closeAuthModal} 
+            /> 
 
-             {/* RENDER THE NOTIFICATION */}
             <Notification 
                 message={notification.message}
                 type={notification.type}

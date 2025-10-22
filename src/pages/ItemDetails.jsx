@@ -1,18 +1,35 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
-import { menuCategories } from '../data/menu.js'; // Use .js extension!
+import { useParams, useOutletContext } from 'react-router-dom';
+import { menuCategories } from '../data/menu.js';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext'; 
 
 const ItemDetails = () => {
-    // Objective 3: Use useParams to get the dynamic URL segment
+    // 1. Router Hooks: Get URL parameter and modal function
     const { categoryPath } = useParams(); 
-    const { addToCart } = useCart(); 
+    // CRITICAL FIX: Accesses openAuthModal from the Outlet context passed by App.jsx
     
+
+    // 2. Context Hooks: Get state and functions
+    const { addToCart } = useCart(); 
+    const { currentUser } = useAuth(); // Checks login status
+    
+    // Find the current category's data based on the URL path
     const category = menuCategories.find(c => c.path === categoryPath);
 
     if (!category) {
         return <h2 style={{ textAlign: 'center', padding: '50px', color: '#a47148' }}>Category Not Found!</h2>;
     }
+
+    // Handler: Enforces login rule on click
+    const handleAction = (item) => {
+        if (currentUser) {
+            addToCart(item); // User is logged in, perform action
+        } else {
+            // User is NOT logged in, open the login modal
+            openAuthModal(); 
+        }
+    };
 
     return (
         <div className="container card-grid">
@@ -23,14 +40,15 @@ const ItemDetails = () => {
                         <h3>{item.name}</h3>
                         <div className="price">₱{item.price}</div>
                     </div>
-                    <p>{item.description}</p>
+                    {/* CRITICAL FIX: Reference the item's description, not the category's */}
+                    <p>{item.description}</p> 
                     
-                    {/* Event handler calls the global addToCart function */}
                     <button 
                         className="add-to-cart-button"
-                        onClick={() => addToCart(item)}
+                        onClick={() => handleAction(item)} 
                     >
-                        Add to Cart
+                        {/* Conditional Button Text */}
+                        {currentUser ? "Add to Cart" : "Login to Order"}
                     </button>
                 </div>
             ))}
